@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import eventService from "../service/event.service";
-import { responseHandler } from "../helpers/response.handler";
+import { responseHandler } from "../helper/response.handler";
 
 class EventController {
     async createEvent(req: Request, res: Response, next: NextFunction) {

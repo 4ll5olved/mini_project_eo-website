@@ -2,6 +2,9 @@ import express, { Application } from "express";
 import { PORT } from "./config";
 import cors from "cors";
 import { eventRoutes } from "./routes/event.routes";
+import { eventTypeRoutes } from "./routes/eventType.routes";
+import { orderRoutes } from "./routes/order.routes";
+import { authorRoute } from "./routes/author.routes";
 export class App {
     private app: Application
     constructor() {
@@ -18,6 +21,9 @@ export class App {
 
     private routes() {
         this.app.use("/api/event", eventRoutes());
+        this.app.use("/api/ticket", eventTypeRoutes());
+        this.app.use("/api/order", orderRoutes());
+        this.app.use("/api/login", authorRoute())  
     }
 
     start() {
