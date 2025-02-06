@@ -13,17 +13,26 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  name      String
-  email     String    @unique
-  password  String
-  role      Role      @default(USER) // USER, ORGANIZER, or ADMIN
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id         Int       @id @default(autoincrement())
+  name       String
+  email      String    @unique
+  password   String
+  role       Role      @default(USER)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
-  events    Event[]   // Relationship for events created by the user (if ORGANIZER)
-  orders    Order[]   // Relationship for orders placed by the user (if USER)
+  events     Event[]   // Relationship for events created by the user (if ORGANIZER)
+  orders     Order[]   // Relationship for orders placed by the user (if USER)
+
+  // Referral system
+  referrerId Int?      // ID of the user who referred this user (nullable)
+  referrer   User?     @relation("UserReferrals", fields: [referrerId], references: [id], onDelete: SetNull)
+  referrals  User[]    @relation("UserReferrals") // Users referred by this user
+
+  points     Int       @default(0)  // Points earned from referrals
 }
+
+
 
 model Event {
   id          Int       @id @default(autoincrement())

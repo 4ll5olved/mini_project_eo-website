@@ -1,4 +1,4 @@
-import { Prisma, EventStatus} from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { Request } from "express";
 import { prisma } from "../config";
 import { pagination } from "../helper/pagination";
