@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Or your DB of choice
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  name       String
+  email      String    @unique
+  password   String
+  role       Role      @default(USER)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  events     Event[]   // Relationship for events created by the user (if ORGANIZER)
+  orders     Order[]   // Relationship for orders placed by the user (if USER)
+
+  // Referral system
+  referrerId Int?      // ID of the user who referred this user (nullable)
+  referrer   User?     @relation("UserReferrals", fields: [referrerId], references: [id], onDelete: SetNull)
+  referrals  User[]    @relation("UserReferrals") // Users referred by this user
+
+  points     Int       @default(0)  // Points earned from referrals
+}
+
+
+
+model Event {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  location    String
+  date        DateTime
+  userId      Int?      // Organizer's user ID (optional for Admin-created events)
+  status      EventStatus @default(PENDING) // Event approval status
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user   User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tickets EventType[]
+}
+
+model EventType {
+  id          Int       @id @default(autoincrement())
+  type        String    // e.g., "General Admission", "VIP"
+  price       Float
+  quantity    Int       // Total number of tickets available
+  eventId     Int       // Event ID this ticket belongs to
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id          Int       @id @default(autoincrement())
+  userId      Int       // User who placed the order
+  total       Float     // Total amount paid
+  status      EventStatus @default(PENDING)
+  createdAt   DateTime  @default(now())
+
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  USER
+  ORGANIZER
+  ADMIN
+}
+
+enum EventStatus {
+  PENDING   // Waiting for Admin approval
+  APPROVED  // Approved by Admin
+  REJECTED  // Rejected by Admin
+}
+
